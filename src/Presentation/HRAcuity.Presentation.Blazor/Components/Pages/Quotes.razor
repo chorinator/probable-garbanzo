@@ -1,0 +1,52 @@
+﻿@page "/quotes"
+@using HRAcuity.Application.Contracts
+@using HRAcuity.Application.Features.Quotes.Entities
+@using HRAcuity.Application.Features.Quotes.Queries
+@attribute [StreamRendering]
+@inject IQueryHandlerAsync<GetAllNotableQuotesQuery, NotableQuote> QuotesProvider
+
+<PageTitle>Notable Quotes</PageTitle>
+
+<h1>Notable Quotes</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (_quotes == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th aria-label="Author">Author</th>
+            <th aria-label="Quote">Quote</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var quote in _quotes)
+        {
+            <tr>
+                <td>@quote.Id</td>
+                <td>@quote.Author</td>
+                <td>@quote.Quote</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IEnumerable<NotableQuote>? _quotes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        _quotes = await QuotesProvider.HandleAsync(new GetAllNotableQuotesQuery(1, 10), cts.Token);
+    }
+
+}
