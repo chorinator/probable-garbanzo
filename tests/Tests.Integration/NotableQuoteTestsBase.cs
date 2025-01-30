@@ -14,7 +14,7 @@ public abstract class NotableQuoteTestsBase : IAsyncLifetime
     protected readonly CancellationTokenSource Cts =
         Debugger.IsAttached
             ? new CancellationTokenSource(TimeSpan.FromHours(1))
-            : new CancellationTokenSource(TimeSpan.FromMinutes(1));
+            : new CancellationTokenSource(TimeSpan.FromMinutes(10)); // LargeDb takes a while to seed
 
     private readonly IStringHasher _stringHasher = new Md5StringHasher();
     protected NotableQuoteDataSeeder? Seeder;

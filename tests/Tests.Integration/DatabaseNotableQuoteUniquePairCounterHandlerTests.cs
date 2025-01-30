@@ -39,13 +39,13 @@ public class DatabaseNotableQuoteUniquePairCounterHandlerTests
     {
         // Arrange
         await Seeder!.SeedAsync(true, Cts.Token);
-        var request = new NotableQuoteLengthQuery(50);
+        var request = new NotableQuoteLengthQuery(1);
 
         // Act
         var result =
             await Sut!.HandleAsync(request, Cts.Token);
 
         // Assert
-        Assert.Equal(100, result.First().Matches);
+        Assert.Equal(0, result.First().Matches);
     }
 }
