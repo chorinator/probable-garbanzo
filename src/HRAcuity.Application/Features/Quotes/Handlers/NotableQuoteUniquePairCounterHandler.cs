@@ -14,25 +14,34 @@ public class NotableQuoteUniquePairCounterHandler(
         var orderedQuotes =
             await queryHandler.HandleAsync(request, ct);
         var asArray = orderedQuotes.ToArray();
+        if (asArray.Length == 0)
+            return new NotableQuoteLengthQuery.NotableQuotePairsResult(0);
+
         var pairs = 0L;
 
-        foreach (var (lenght, quotes) in asArray)
+        // Formula provided by ChatGPT
+        for (var i = 0; i < asArray.Length; i++)
         {
-            var compliantGroups =
-                asArray
-                    .Where(nq =>
-                        lenght + nq.Length <= request.MaxLength)
-                    .ToArray();
-
-            if (compliantGroups.Length == 0)
-                break;
-
-            var totalCompliantPairs =
-                compliantGroups
-                    .Sum(nq => nq.Quotes);
-
-            // Formula provided by ChatGPT
-            pairs += totalCompliantPairs * (totalCompliantPairs - 1) / 2;
+            for (var j = i; j < asArray.Length; j++)
+            {
+                if (asArray[i].Length + asArray[j].Length <= request.MaxLength)
+                {
+                    if (i == j)
+                    {
+                        // Combinations of 2 within the same group.
+                        var quotes = asArray[i].Quotes;
+                        pairs += quotes * (quotes - 1) / 2;
+                    }
+                    else
+                        pairs += asArray[i].Quotes * asArray[j].Quotes;
+                }
+                else
+                {
+                    // Since groups are sorted, if we exceed maxLength here,
+                    // further j's will also exceed, so we can break.
+                    break;
+                }
+            }
         }
 
         return new NotableQuoteLengthQuery.NotableQuotePairsResult(pairs);

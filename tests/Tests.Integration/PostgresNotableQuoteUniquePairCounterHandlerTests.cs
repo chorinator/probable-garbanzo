@@ -1,9 +1,12 @@
+using System.Diagnostics;
+using HRAcuity.Application.Features.Quotes.Handlers;
 using HRAcuity.Application.Features.Quotes.Queries;
 using HRAcuity.Persistence.Postgres.Quotes;
+using Xunit.Abstractions;
 
 namespace Tests.Integration;
 
-public class PostgresNotableQuoteUniquePairCounterHandlerTests
+public class PostgresNotableQuoteUniquePairCounterHandlerTests(ITestOutputHelper logger)
     : NotableQuoteTestsBase
 {
     private PostgresNotableQuoteUniquePairCounterHandler? Sut { get; set; }
@@ -24,28 +27,37 @@ public class PostgresNotableQuoteUniquePairCounterHandlerTests
     {
         // Arrange
         await Seeder!.SeedAsync(false, Cts.Token);
+        var sut = new NotableQuoteUniquePairCounterHandler(Sut!);
         var request = new NotableQuoteLengthQuery(maxLength);
 
         // Act
         var result =
-            await Sut!.HandleAsync(request, Cts.Token);
+            await sut.HandleAsync(request, Cts.Token);
 
         // Assert
-        Assert.Equal(expected, result.Sum(nq => nq.Quotes));
+        Assert.Equal(expected, result.Matches);
     }
-    
-    [Fact]
-    public async Task Should_Return_NotableQuotePairLengthResult_LargeDb()
+
+    [Theory]
+    [InlineData(10, 1745672679)]
+    [InlineData(5, 7642518)]
+    [InlineData(1, 0)]
+    public async Task Should_Return_NotableQuotePairLengthResult_LargeDb(int maxLength, int expected)
     {
         // Arrange
         await Seeder!.SeedAsync(true, Cts.Token);
-        var request = new NotableQuoteLengthQuery(1);
+        var sut = new NotableQuoteUniquePairCounterHandler(Sut!);
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var request = new NotableQuoteLengthQuery(maxLength);
+        var stopWatch = Stopwatch.StartNew();
 
         // Act
-        var result =
-            await Sut!.HandleAsync(request, Cts.Token);
+        logger.WriteLine($"Running test for {maxLength} length");
+        var result = await sut.HandleAsync(request, Cts.Token);
+        stopWatch.Stop();
+        logger.WriteLine($"Test took {stopWatch.ElapsedMilliseconds} ms");
 
         // Assert
-        Assert.Equal(0, result.Sum(nq => nq.Quotes));
+        Assert.Equal(expected, result.Matches);
     }
 }
