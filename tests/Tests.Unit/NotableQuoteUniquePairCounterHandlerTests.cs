@@ -23,25 +23,27 @@ public class NotableQuoteUniquePairCounterHandlerTests
         var result = await sut.HandleAsync(request, cts.Token);
 
         // Assert
-        Assert.Equal(expected, result.Count());
+        var matches = result.Matches;
+        Assert.Equal(expected, matches);
     }
 
-    [Fact]
-    public async Task Should_Fail_NotableQuotePairLengthResult_LargeDb()
+    [Theory]
+    [InlineData(10, 1745672679)]
+    [InlineData(5, 7642518)]
+    [InlineData(1, 0)]
+    public async Task Should_Return_NotableQuotePairLengthResult_LargeDb(int maxLength, int expected)
     {
         // Arrange
         var shortDbMock = new NotableQuoteHandlerMock(useLargeDb: true);
         var sut = new NotableQuoteUniquePairCounterHandler(shortDbMock);
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-        var request = new NotableQuoteLengthQuery(10);
-        var token = cts.Token;
+        var request = new NotableQuoteLengthQuery(maxLength);
 
         // Act
-        var result =
-            await Record.ExceptionAsync(() => sut.HandleAsync(request, token));
+        var result = await sut.HandleAsync(request, cts.Token);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.IsType<OperationCanceledException>(result);
+        var matches = result.Matches;
+        Assert.Equal(expected, matches);
     }
 }

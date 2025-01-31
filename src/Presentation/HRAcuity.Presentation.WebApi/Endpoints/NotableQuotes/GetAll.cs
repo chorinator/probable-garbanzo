@@ -8,7 +8,7 @@ namespace HRAcuity.Presentation.WebApi.Endpoints.NotableQuotes;
 public static class GetAll
 {
     internal static async Task<IResult> GetAllQuotes(
-        [FromServices] IQueryHandlerAsync<GetAllNotableQuotesQuery, NotableQuote> queryHandler,
+        [FromServices] IQueryHandlerAsync<GetAllNotableQuotesQuery, IEnumerable<NotableQuote>> queryHandler,
         [FromQuery] int page, [FromQuery] int pageSize,
         CancellationToken ct)
     {

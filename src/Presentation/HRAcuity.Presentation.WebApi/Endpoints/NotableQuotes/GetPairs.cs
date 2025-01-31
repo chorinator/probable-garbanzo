@@ -15,6 +15,6 @@ public static class GetPairs
         var result =
             await queryHandler.HandleAsync(new NotableQuoteLengthQuery(maxLength), ct);
 
-        return Results.Ok(result.First());
+        return Results.Ok(result.Matches);
     }
 }

@@ -15,12 +15,9 @@ public static class DependencyInjection
         this IServiceCollection services,
         string connectionString)
     {
-        services
-            .AddSingleton<IQueryHandlerAsync<NotableQuoteLengthQuery, NotableQuoteLengthQuery.NotableQuotePairsResult>,
-                DatabaseNotableQuoteUniquePairCounterHandler>();
         services.AddSingleton<ICommandHandlerAsync<InsertNotableQuotesCommand>, InsertNotableQuoteCommandHandler>();
         services.AddSingleton<IStringHasher, Md5StringHasher>();
-        services.AddSingleton<IQueryHandlerAsync<GetAllNotableQuotesQuery, NotableQuote>,
+        services.AddSingleton<IQueryHandlerAsync<GetAllNotableQuotesQuery, IEnumerable<NotableQuote>>,
             GetAllNotableQuotesQueryHandler>();
         services.AddSingleton<ICommandHandlerAsync<DeleteNotableQuoteCommand>, DeleteNotableQuoteCommandHandler>();
         services.AddSingleton<ICommandHandlerAsync<UpdateNotableQuoteCommand>, UpdateNotableQuoteCommandHandler>();

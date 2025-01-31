@@ -1,30 +1,28 @@
 using HRAcuity.Application.Contracts;
+using HRAcuity.Application.Features.Quotes.Entities;
 using HRAcuity.Application.Features.Quotes.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace HRAcuity.Persistence.Postgres.Quotes;
 
 public class PostgresNotableQuoteUniquePairCounterHandler(IDbContextFactory<HrAcuityDbContext> dbContextFactory)
-    : IQueryHandlerAsync<NotableQuoteLengthQuery, NotableQuoteLengthQuery.NotableQuotePairsResult>
+    : IQueryHandlerAsync<NotableQuoteLengthQuery,
+        IOrderedEnumerable<NotableQuoteLengthQuery.NotableQuotePairGroupsResult>>
 {
     private const string Sql =
         """
-            SELECT COUNT(1)
-            FROM (SELECT * FROM "NotableQuotes" nq 
-                  WHERE nq."QuoteLength" < @maxLength) q1
-            JOIN (SELECT * FROM "NotableQuotes" nq 
-                  WHERE nq."QuoteLength" < @maxLength) q2
-              ON q2."QuoteLength" <= @maxLength - q1."QuoteLength"
-            WHERE q1."Id" < q2."Id"
-              AND q1."QuoteHash" <> q2."QuoteHash"
+        select nq."QuoteLength", count(distinct(nq."QuoteHash")) as UniqueQuotes
+        from "NotableQuotes" nq
+        where nq."QuoteLength" <= @maxLength
+        group by nq."QuoteLength"
         """;
 
-    public async Task<IEnumerable<NotableQuoteLengthQuery.NotableQuotePairsResult>> HandleAsync(
+    public async Task<IOrderedEnumerable<NotableQuoteLengthQuery.NotableQuotePairGroupsResult>> HandleAsync(
         NotableQuoteLengthQuery request,
         CancellationToken ct)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(ct);
-        var connection = dbContext.Database.GetDbConnection();
+        await using var connection = dbContext.Database.GetDbConnection();
 
         await connection.OpenAsync(ct);
         await using var command = connection.CreateCommand();
@@ -33,16 +31,21 @@ public class PostgresNotableQuoteUniquePairCounterHandler(IDbContextFactory<HrAc
         // Parameter
         var maxLengthParam = command.CreateParameter();
         maxLengthParam.ParameterName = "maxLength";
-        maxLengthParam.Value = request.MaxLength;
+        maxLengthParam.Value = request.MaxLength - NotableQuote.MinLength; 
         command.Parameters.Add(maxLengthParam);
 
         // Execute scalar and cast to long (or int, depending on your count size)
-        var countObj = await command.ExecuteScalarAsync(ct);
-        var totalCompliantPairs = Convert.ToInt64(countObj);
+        var reader = await command.ExecuteReaderAsync(ct);
+        var results = new List<NotableQuoteLengthQuery.NotableQuotePairGroupsResult>();
+        while (await reader.ReadAsync(ct))
+        {
+            var key = reader.GetInt32(0);
+            var value = reader.GetInt32(1);
+            results.Add(
+                new NotableQuoteLengthQuery.NotableQuotePairGroupsResult(key, value));
+        }
 
         // Return or use totalCompliantPairs as needed
-        var asList = new List<NotableQuoteLengthQuery.NotableQuotePairsResult>
-            { new(totalCompliantPairs) };
-        return asList;
+        return results.OrderBy(r => r.Length);
     }
 }

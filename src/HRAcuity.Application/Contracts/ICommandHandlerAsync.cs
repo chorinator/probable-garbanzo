@@ -6,4 +6,4 @@ public interface ICommandHandlerAsync<in TRequest>
     Task HandleAsync(TRequest request, CancellationToken ct);
 }
 
-public interface ICommand { }
+public interface ICommand;

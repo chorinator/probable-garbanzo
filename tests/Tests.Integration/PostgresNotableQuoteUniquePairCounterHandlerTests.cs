@@ -31,7 +31,7 @@ public class PostgresNotableQuoteUniquePairCounterHandlerTests
             await Sut!.HandleAsync(request, Cts.Token);
 
         // Assert
-        Assert.Equal(expected, result.First().Matches);
+        Assert.Equal(expected, result.Sum(nq => nq.Quotes));
     }
     
     [Fact]
@@ -46,6 +46,6 @@ public class PostgresNotableQuoteUniquePairCounterHandlerTests
             await Sut!.HandleAsync(request, Cts.Token);
 
         // Assert
-        Assert.Equal(0, result.First().Matches);
+        Assert.Equal(0, result.Sum(nq => nq.Quotes));
     }
 }

@@ -3,42 +3,38 @@ using HRAcuity.Application.Features.Quotes.Queries;
 namespace HRAcuity.Application.Features.Quotes.Handlers;
 
 public class NotableQuoteUniquePairCounterHandler(
-    IQueryHandlerAsync<NotableQuoteLengthQuery, NotableQuoteLengthQuery.NotableQuoteLengthResult>
+    IQueryHandlerAsync<NotableQuoteLengthQuery,
+            IOrderedEnumerable<NotableQuoteLengthQuery.NotableQuotePairGroupsResult>>
         queryHandler)
-    : IQueryHandlerAsync<NotableQuoteLengthQuery, NotableQuoteLengthQuery.NotableQuotePairLengthResult>
+    : IQueryHandlerAsync<NotableQuoteLengthQuery, NotableQuoteLengthQuery.NotableQuotePairsResult>
 {
-    public async Task<IEnumerable<NotableQuoteLengthQuery.NotableQuotePairLengthResult>>
+    public async Task<NotableQuoteLengthQuery.NotableQuotePairsResult>
         HandleAsync(NotableQuoteLengthQuery request, CancellationToken ct)
     {
-        var quotes = await queryHandler.HandleAsync(request, ct);
-        var compliantPairs = new List<NotableQuoteLengthQuery.NotableQuotePairLengthResult>();
-        var index = 0;
+        var orderedQuotes =
+            await queryHandler.HandleAsync(request, ct);
+        var asArray = orderedQuotes.ToArray();
+        var pairs = 0L;
 
-        foreach (var quote1 in quotes)
+        foreach (var (lenght, quotes) in asArray)
         {
-            // Stop on last item
-            if (index >= quotes.Count() - 1)
+            var compliantGroups =
+                asArray
+                    .Where(nq =>
+                        lenght + nq.Length <= request.MaxLength)
+                    .ToArray();
+
+            if (compliantGroups.Length == 0)
                 break;
 
-            foreach (var quote2 in quotes.Skip(index + 1))
-            {
-                ct.ThrowIfCancellationRequested();
+            var totalCompliantPairs =
+                compliantGroups
+                    .Sum(nq => nq.Quotes);
 
-                if (quote1.Length + quote2.Length > request.MaxLength)
-                    continue;
-
-                var combinedLength = quote1.Length + quote2.Length;
-                var compliantQuotePair =
-                    new NotableQuoteLengthQuery.NotableQuotePairLengthResult(
-                        quote1.Quotes,
-                        quote2.Quotes,
-                        combinedLength);
-                compliantPairs.Add(compliantQuotePair);
-            }
-
-            index++;
+            // Formula provided by ChatGPT
+            pairs += totalCompliantPairs * (totalCompliantPairs - 1) / 2;
         }
 
-        return compliantPairs.AsQueryable();
+        return new NotableQuoteLengthQuery.NotableQuotePairsResult(pairs);
     }
 }

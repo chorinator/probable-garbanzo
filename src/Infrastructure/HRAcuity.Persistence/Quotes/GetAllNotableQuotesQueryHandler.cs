@@ -4,7 +4,7 @@ using HRAcuity.Application.Features.Quotes.Queries;
 namespace HRAcuity.Persistence.Quotes;
 
 public class GetAllNotableQuotesQueryHandler(IDbContextFactory<HrAcuityDbContext> dbContextFactory)
-    : IQueryHandlerAsync<GetAllNotableQuotesQuery, NotableQuote>
+    : IQueryHandlerAsync<GetAllNotableQuotesQuery, IEnumerable<NotableQuote>>
 {
     public async Task<IEnumerable<NotableQuote>> HandleAsync(GetAllNotableQuotesQuery request,
         CancellationToken ct)
