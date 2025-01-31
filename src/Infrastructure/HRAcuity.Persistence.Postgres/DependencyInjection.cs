@@ -26,6 +26,8 @@ public static class DependencyInjection
             IQueryHandlerAsync<NotableQuoteLengthQuery,
                 IOrderedEnumerable<NotableQuoteLengthQuery.NotableQuotePairGroupsResult>>,
             PostgresNotableQuoteUniquePairCounterHandler>();
+        services.AddSingleton<IQueryHandlerAsync<GetQuoteByIdQuery, NotableQuote>,
+            GetQueryByIdQueryHandler>();
 
         services.AddDbContextFactory<HrAcuityDbContext>(
             o => o.UseNpgsql(
@@ -33,6 +35,7 @@ public static class DependencyInjection
                     oo.MigrationsAssembly(typeof(HRAcuityDbContextFactory).Assembly.FullName)
             ));
 
+        // Apply Migrations
         var scopedProvider = services.BuildServiceProvider();
         using var scope = scopedProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<HrAcuityDbContext>();

@@ -1,3 +1,4 @@
+using HRAcuity.Application;
 using HRAcuity.Persistence.Postgres;
 using HRAcuity.Presentation.WebApi.Endpoints.NotableQuotes;
 
@@ -7,6 +8,9 @@ if (string.IsNullOrWhiteSpace(connectionString))
     throw new Exception("No connection string found");
 
 // Add services to the container.
+// Add Application
+builder.Services.AddApplication();
+
 // Add Persistence
 builder.Services.AddPersistence(connectionString);
 
@@ -21,7 +25,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseSwaggerUI(o => 
+    app.UseSwaggerUI(o =>
         o.SwaggerEndpoint("/openapi/v1.json", "HRAcuity.Presentation.WebApi v1"));
 }
 

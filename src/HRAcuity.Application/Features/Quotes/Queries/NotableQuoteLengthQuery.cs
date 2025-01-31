@@ -1,5 +1,3 @@
-using HRAcuity.Application.Features.Quotes.Entities;
-
 namespace HRAcuity.Application.Features.Quotes.Queries;
 
 public record NotableQuoteLengthQuery(int MaxLength)

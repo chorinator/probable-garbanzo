@@ -6,8 +6,10 @@ public static class RegisterEndpoints
     {
         var packageGroup = app.MapGroup("/api/NotableQuotes");
 
-        packageGroup.MapGet("/GetPairs", GetPairs.GetComplyingPairs);
-        packageGroup.MapGet("/", GetAll.GetAllQuotes);
+        packageGroup.MapGet("/pairs", GetPairs.GetComplyingPairs);
+        packageGroup.MapGet("/{id:int}", GetQuotes.ById);
+        packageGroup.MapGet("/{p:required}", GetQuotes.GetAllQuotes);
+
         packageGroup.MapPost("/", InsertQuote.InsertNotableQuote);
         packageGroup.MapDelete("/{id:int}", DeleteQuote.DeleteNotableQuote);
         packageGroup.MapPut("/{id:int}", UpdateQuote.UpdateNotableQuote);

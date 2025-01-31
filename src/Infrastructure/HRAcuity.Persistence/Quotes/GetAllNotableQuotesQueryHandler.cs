@@ -12,7 +12,8 @@ public class GetAllNotableQuotesQueryHandler(IDbContextFactory<HrAcuityDbContext
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(ct);
 
         var result = await dbContext.NotableQuotes
-            .Skip(request.Page - 1)
+            .OrderBy(nq => nq.Id)
+            .Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize)
             .ToListAsync(ct);
 
