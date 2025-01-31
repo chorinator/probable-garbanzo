@@ -2,7 +2,6 @@
 @using HRAcuity.Application.Contracts
 @using HRAcuity.Application.Features.Quotes.Entities
 @using HRAcuity.Application.Features.Quotes.Queries
-@attribute [StreamRendering]
 @inject IQueryHandlerAsync<GetAllNotableQuotesQuery, IEnumerable<NotableQuote>> QuotesProvider
 
 <PageTitle>Notable Quotes</PageTitle>

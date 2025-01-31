@@ -1,8 +1,12 @@
+using HRAcuity.Application;
 using HRAcuity.Persistence.Postgres;
 using HRAcuity.Presentation.Blazor.Components;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Application
+builder.Services.AddApplication();
 
 // Add Persistence
 var connectionString = builder.Configuration.GetConnectionString("Default");

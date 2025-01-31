@@ -1,0 +1,32 @@
+﻿@page "/quotes/pairs"
+@using HRAcuity.Application.Contracts
+@using HRAcuity.Application.Features.Quotes.Queries
+@inject IQueryHandlerAsync<NotableQuoteLengthQuery, NotableQuoteLengthQuery.NotableQuotePairsResult> PairsProvider
+
+<PageTitle>Notable Quote Pairs</PageTitle>
+
+<h1>Notable Quote Pairs</h1>
+
+<p>Show all the unique quote pairs within the max length constraint</p>
+<RadzenNumeric
+    TValue="int"
+    Value="_maxLength"
+    Min="3"
+></RadzenNumeric>
+<RadzenButton Click="async () => await UpdatePairs()">Get Pairs</RadzenButton>
+<br/>
+<RadzenText>@_pairs</RadzenText>
+
+@code {
+    private long _pairs;
+    private int _maxLength = 3;
+
+    private async Task UpdatePairs()
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var pairs =
+            await PairsProvider.HandleAsync(new NotableQuoteLengthQuery(_maxLength), cts.Token);
+        _pairs = pairs.Matches;
+    }
+
+}

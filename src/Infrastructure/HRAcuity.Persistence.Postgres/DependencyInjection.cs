@@ -3,6 +3,7 @@ using HRAcuity.Application.Features.Quotes.Commands;
 using HRAcuity.Application.Features.Quotes.Entities;
 using HRAcuity.Application.Features.Quotes.Queries;
 using HRAcuity.Application.Helpers;
+using HRAcuity.Persistence.Postgres.Quotes;
 using HRAcuity.Persistence.Quotes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,10 @@ public static class DependencyInjection
             GetAllNotableQuotesQueryHandler>();
         services.AddSingleton<ICommandHandlerAsync<DeleteNotableQuoteCommand>, DeleteNotableQuoteCommandHandler>();
         services.AddSingleton<ICommandHandlerAsync<UpdateNotableQuoteCommand>, UpdateNotableQuoteCommandHandler>();
+        services.AddSingleton<
+            IQueryHandlerAsync<NotableQuoteLengthQuery,
+                IOrderedEnumerable<NotableQuoteLengthQuery.NotableQuotePairGroupsResult>>,
+            PostgresNotableQuoteUniquePairCounterHandler>();
 
         services.AddDbContextFactory<HrAcuityDbContext>(
             o => o.UseNpgsql(
