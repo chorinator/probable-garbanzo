@@ -10,7 +10,7 @@ Your code will be shared among the team here, and we'll review it together durin
 
 You are being asked to implement a Web API that lets you manage an archive that stores notable quotations. At minimum, you will need to be able to perform basic CRUD (Create, Read, Update, Delete) operations on Quotes. 
 
-However the main problem is that you've also received a requirement that you need to also provide an additional route that will find the number of pairs of Quotes in your archive that will fit into a text field of a given length. More formally,
+However, the main problem is that you've also received a requirement that you need to also provide an additional route that will find the number of pairs of Quotes in your archive that will fit into a text field of a given length. More formally,
 
 Input: A numeric value representing a length of characters in a string
 Expected result: The total number of unique pairs of Quotes in your archive that satisfy the following condition:
@@ -21,7 +21,7 @@ Expected result: The total number of unique pairs of Quotes in your archive that
 
 ### Scaling
 
-The provided archive, ShortDb.json, only has a few entries in it. Naturally, any algorithm that solves the problem will work on it. However, we've also provided a second file, LargeDb.json, that contains many more entries already present in the archive. Inefficient code won't handle this well. See if you can still handle this larger file.
+The provided archive, [ShortDb.json](https://github.com/chorinator/probable-garbanzo/blob/main/tests/Tests.Common/Resources/ShortDb.json), only has a few entries in it. Naturally, any algorithm that solves the problem will work on it. However, we've also provided a second file, [LargeDb.json](https://github.com/chorinator/probable-garbanzo/blob/main/tests/Tests.Common/Resources/LargeDb.json), that contains many more entries already present in the archive. Inefficient code won't handle this well. See if you can still handle this larger file.
 
 If you end up generating any metadata for the provided files, please also provide your code for how this was generated even if that code is separate from the Web API.
 
